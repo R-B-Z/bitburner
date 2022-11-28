@@ -1,4 +1,4 @@
-import { player } from "player.js";
+import { user } from "player.js";
 /** @param {NS} ns */
 
 export function create_stock(ns, stonk) {
@@ -8,8 +8,8 @@ export function create_stock(ns, stonk) {
         get_price: function () { return ns.stock.getPrice(this.symbol); },
         get_forecast: function () { return ns.stock.getForecast(this.symbol); },
         get_position: function () { return ns.stock.getPosition(this.symbol); },
-        get_shares_owned: function () { return position[0]; },
-        get_purchasable: function () { return Math.round(player.get_money() / this.get_price()) },
+        get_shares_owned: function () { return this.get_position()[0]; },
+        get_purchasable: function () { return Math.round(user(ns).get_money() / this.get_price()*0.9) },
         get_cost: function () { return this.get_shares_owned() * this.get_price(); },
         get_remaining_shares: function () { return ns.stock.getMaxShares(this.symbol) - this.get_shares_owned(); },
         long: function () { 
@@ -25,16 +25,14 @@ export function create_stock(ns, stonk) {
 export function populate(ns, stocks) {
     let stonks = [];
     for (let stonk of stocks) {
-        stonks.push(create_stock[ns, stonk]);
+        stonks.push(create_stock(ns, stonk));
     }
     return stonks;
 }
 
 export function buy_all(ns, stocks) {
     for (let stock of stocks) {
-        if (stock.get_forecast() > 0.6 && player.get_money() > 325000000) {
-            stock.long();
-        }
+        if (stock.get_forecast() > 0.6 && user(ns).get_money() > 325000000) stock.long();
     }
 }
 
