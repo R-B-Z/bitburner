@@ -1,5 +1,5 @@
-import { stocks, manage_portfolio } from "game_info.js";
-import { populate } from "stock.js";
+import { stocks } from "game_info.js";
+import { populate, manage_portfolio } from "stock.js";
 /** @param {NS} ns */
 
 export async function main(ns) {
@@ -10,7 +10,7 @@ export async function main(ns) {
 	let stonks = populate(ns, stocks(ns));
 
 	while (true) {
-		manage_portfolio(stonks);
+		manage_portfolio(ns, stonks);
 		await ns.sleep(1);
 	}
 }
