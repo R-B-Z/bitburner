@@ -4,6 +4,9 @@ import { user } from "player.js";
 export function create_stock(ns, stonk) {
     return {
         symbol: stonk,
+        get_WSE: function () { return ns.stock.hasWSEAccount(); },
+        get_4SData: function () { return ns.stock.has4SData(); },
+        get_TIX: function () { return ns.stock.hasTIXAPIAccess(); },
         get_shares: function () { return ns.stock.getMaxShares(this.symbol); },
         get_price: function () { return ns.stock.getPrice(this.symbol); },
         get_forecast: function () { return ns.stock.getForecast(this.symbol); },
@@ -45,6 +48,8 @@ export function sell_all(ns, stocks) {
 }
 
 export function manage_portfolio(ns, stocks) {
-    buy_all(ns, stocks);
-    sell_all(ns, stocks);
+    if (stocks[0].get_WSE()) {
+        buy_all(ns, stocks);
+        sell_all(ns, stocks);
+    }
 }
