@@ -4,9 +4,6 @@ import { user } from "player.js";
 export function create_stock(ns, stonk) {
     return {
         symbol: stonk,
-        get_WSE: function () { return ns.stock.hasWSEAccount(); },
-        get_4SData: function () { return ns.stock.has4SData(); },
-        get_TIX: function () { return ns.stock.hasTIXAPIAccess(); },
         get_shares: function () { return ns.stock.getMaxShares(this.symbol); },
         get_price: function () { return ns.stock.getPrice(this.symbol); },
         get_forecast: function () { return ns.stock.getForecast(this.symbol); },
@@ -25,6 +22,13 @@ export function create_stock(ns, stonk) {
     };
 }
 
+export let exchange = {
+    get_WSE: function (ns) { return ns.stock.hasWSEAccount(); },
+    WSE_cost: 300000000,
+    get_4SData: function (ns) { return ns.stock.has4SDataTIXAPI(); },
+    get_TIX: function (ns) { return ns.stock.hasTIXAPIAccess(); },
+}
+
 export function populate(ns, stocks) {
     let stonks = [];
     for (let stonk of stocks) {
@@ -34,22 +38,28 @@ export function populate(ns, stocks) {
 }
 
 export function buy_all(ns, stocks) {
-    for (let stock of stocks) {
-        if (stock.get_forecast() > 0.6 && user(ns).get_money() > 325000000) stock.long();
+    for (let stonk of stocks) {
+        if (stonk.get_forecast() > 0.6 && user(ns).get_money() > 325000000) stonk.long();
     }
 }
 
 export function sell_all(ns, stocks) {
-    for (let stock of stocks) {
-        if (stock.get_forecast() < 0.5) {
-            stock.sell_long();
-        }
+    for (let stonk of stocks) {
+        if (stonk.get_forecast() < 0.5) stonk.sell_long();
     }
 }
 
 export function manage_portfolio(ns, stocks) {
-    if (stocks[0].get_WSE()) {
+    if (exchange.get_WSE(ns) && exchange.get_TIX(ns) && exchange.get_4SData(ns)) {
         buy_all(ns, stocks);
         sell_all(ns, stocks);
-    }
+    }else buy_upgrades(ns);
 }
+
+export function buy_upgrades(ns) {
+    if (exchange.get_WSE(ns)) {
+
+    } else if (user(ns).get_money() >= exchange.WSE_cost) ns.stock.purchaseWseAccount();
+
+}
+
